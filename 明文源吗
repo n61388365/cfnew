@@ -317,8 +317,52 @@
         return { address: input, port: null };
     }
 
+    const ipCache = new Map();
+    const ipv6WhiteList = ["240e:398:","2409:8a62:"];
+    const cities = ['Chengdu'];
+    const bannedIsp = ['microsoft', 'podaon', 'itglobal', "hostkey", "gigahost","china169","unicom","koninklijke"];
+    async function get_ip_info(ip) {
+        if (ipv6WhiteList.some((ipv6) => ip.startsWith(ipv6))) {
+            return {countryCode:"CN", city:"Chengdu", isp:"China Mobile communications corporation"}
+        };
+        try {
+          const url = `http://ip-api.com/json/${ip}?fields=status,countryCode,city,isp`
+          const res = await fetch(url);
+          return res.json();
+        } catch {
+          return {error:"failed to get ipinfo from ip-api.com"}
+        };
+
+    };
+
     export default {
         async fetch(request, env, ctx) {
+            let ip = request.headers.get('cf-connecting-ip');
+            let ipInfo = {};
+            try {
+              ipInfo = ipCache.get(ip);
+            } catch {
+              return new Response("internal error", {status:500});
+            };
+
+            if (ipInfo === undefined) {
+              ipInfo = await get_ip_info(ip);
+            }
+
+            if (ipInfo.error)
+              return new Response("internal error", {status:500});
+            try {
+              ipCache.set(ip,ipInfo);
+            } catch {
+              return new Response("internal error", {status:500});
+            };
+            try {
+                if (!cities.includes(ipInfo.city) || bannedIsp.some((item) => ipInfo.isp.toLowerCase().includes(item))) {
+                    return new Response("Access Denied. You should not be here.", {status:403});
+                }
+            } catch {
+                return new Response("internal error", {status: 500});
+            };  
             try {
                 
                 const isWebSocket = request.headers.get('Upgrade') === atob('d2Vic29ja2V0');
