@@ -319,14 +319,14 @@
 
     const ipCache = new Map();
     const ipv6WhiteList = ["240e:398:","2409:8a62:"];
-    const cities = ['Chengdu'];
+    const cities = ['Chengdu','成都'];
     const bannedIsp = ['microsoft', 'podaon', 'itglobal', "hostkey", "gigahost","china169","unicom","koninklijke"];
     async function get_ip_info(ip) {
         if (ipv6WhiteList.some((ipv6) => ip.startsWith(ipv6))) {
             return {countryCode:"CN", city:"Chengdu", isp:"China Mobile communications corporation"}
         };
         try {
-          const url = `http://ip-api.com/json/${ip}?fields=status,countryCode,city,isp`
+          const url = `https://ip125.com/api/geo/${ip}?fields=status,countryCode,city,isp`
           const res = await fetch(url);
           return res.json();
         } catch {
