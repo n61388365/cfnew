@@ -324,13 +324,13 @@
     const bannedIsp = ['microsoft', 'podaon', 'itglobal', "hostkey", "gigahost","china169","unicom","koninklijke"];
     async function get_ip_info(ip) {
         if (ipv6WhiteList.some((ipv6) => ip.startsWith(ipv6))) {
-            return {countryCode:"CN", city:"Chengdu", isp:"China Mobile communications corporation"}
+            return {country_code:"CN", city:"Chengdu", isp:"China Mobile communications corporation"}
         };
         if (ipv4WhiteList.some((ipv4) => ip.startsWith(ipv4))) {
-            return {countryCode:"CN", city:"Chengdu", isp:"China Mobile communications corporation"}
+            return {country_code:"CN", city:"Chengdu", isp:"China Mobile communications corporation"}
         };
     try {
-          const url = `https://ip125.com/api/geo/${ip}?fields=status,countryCode,city,isp`
+          const url = `https://api.ip.sb/geoip/${ip}`
           const res = await fetch(url);
           return res.json();
         } catch {
